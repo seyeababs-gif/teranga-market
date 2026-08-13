@@ -40,7 +40,7 @@ export default function ProductDetailScreen() {
   const [viewerIndex, setViewerIndex] = useState(0);
   const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
 
-  const product = products.find(p => p.id === id) || fetchedProduct || null;
+  const product = (products || []).find(p => p.id === id) || fetchedProduct || null;
   const productImages = product && Array.isArray(product.images) ? product.images : [];
 
   useEffect(() => {
@@ -122,9 +122,10 @@ export default function ProductDetailScreen() {
     }
   }, [product]);
 
-  const productReviews = product ? getProductReviews(product.id) : [];
-  const productRating = product ? getProductRating(product.id) : { average: 0, count: 0 };
-  const sellerRating = product ? getSellerRating(product.sellerId) : { average: 0, count: 0 };
+  // Sécurisation des listes qui peuvent retourner null
+  const productReviews = (product ? getProductReviews(product.id) : []) || [];
+  const productRating = (product ? getProductRating(product.id) : null) || { average: 0, count: 0 };
+  const sellerRating = (product ? getSellerRating(product.sellerId) : null) || { average: 0, count: 0 };
 
   const displayedReviews = showAllReviews ? productReviews : productReviews.slice(0, 2);
 
@@ -134,6 +135,7 @@ export default function ProductDetailScreen() {
   const canViewFullPhone = isAdmin || isSuperAdmin;
 
   const maskPhoneNumber = (phone: string) => {
+    if (!phone) return '';
     if (canViewFullPhone) return phone;
     if (phone.length <= 4) return phone;
     const visiblePart = phone.slice(0, 4);
@@ -141,7 +143,7 @@ export default function ProductDetailScreen() {
     return `${visiblePart}${maskedPart}`;
   };
 
-  const isLoading = products.length === 0 && !fetchedProduct;
+  const isLoading = (products?.length || 0) === 0 && !fetchedProduct;
 
   if (isLoading || isTransitioning) {
     return (
@@ -264,7 +266,7 @@ export default function ProductDetailScreen() {
       `Localisation: ${product.location}\n\n` +
       `Pouvez-vous me donner plus d'informations ?`
     );
-    const phoneDigits = product.sellerPhone.replace(/[^0-9]/g, '');
+    const phoneDigits = (product.sellerPhone || '').replace(/[^0-9]/g, '');
     if (!phoneDigits) {
       toast.showError('Le vendeur n\'a pas de numéro WhatsApp valide.');
       return;
@@ -395,14 +397,14 @@ export default function ProductDetailScreen() {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={Platform.OS === 'web'}
       >
-        {productImages.length > 0 ? (
+        {(productImages?.length || 0) > 0 ? (
           <ScrollView
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             style={[styles.imagesCarousel, { height: Math.min(screenWidth * 0.75, 400) }]}
           >
-            {productImages.map((image, index) => (
+            {(productImages || []).map((image, index) => (
               <TouchableOpacity
                 key={index}
                 activeOpacity={0.95}
@@ -420,7 +422,7 @@ export default function ProductDetailScreen() {
           </View>
         )}
         <View style={styles.imageThumbnails}>
-          {productImages.map((image, index) => (
+          {(productImages || []).map((image, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => openImageViewer(index)}
@@ -612,11 +614,11 @@ export default function ProductDetailScreen() {
             </TouchableOpacity>
           </View>
 
-          {productReviews.length > 0 && (
+          {(productReviews?.length || 0) > 0 && (
             <View style={styles.section}>
               <View style={styles.reviewsHeader}>
                 <Text style={styles.sectionTitle}>Avis</Text>
-                {productRating.count > 0 && (
+                {productRating?.count > 0 && (
                   <View style={styles.ratingBadge}>
                     <Star size={16} color="#FFB800" fill="#FFB800" />
                     <Text style={styles.ratingBadgeText}>
@@ -627,7 +629,7 @@ export default function ProductDetailScreen() {
                 )}
               </View>
 
-              {displayedReviews.map((review) => (
+              {(displayedReviews || []).map((review) => (
                 <View key={review.id} style={styles.reviewCard}>
                   <View style={styles.reviewHeader}>
                     <Image source={{ uri: review.userAvatar }} style={styles.reviewAvatar} />
@@ -652,13 +654,13 @@ export default function ProductDetailScreen() {
                 </View>
               ))}
 
-              {productReviews.length > 2 && (
+              {(productReviews?.length || 0) > 2 && (
                 <TouchableOpacity
                   style={styles.showMoreButton}
                   onPress={() => setShowAllReviews(!showAllReviews)}
                 >
                   <Text style={styles.showMoreText}>
-                    {showAllReviews ? 'Voir moins' : `Voir tous les avis (${productReviews.length})`}
+                    {showAllReviews ? 'Voir moins' : `Voir tous les avis (${productReviews?.length || 0})`}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -686,7 +688,7 @@ export default function ProductDetailScreen() {
             style={styles.viewerImage}
             resizeMode="contain"
           />
-          {productImages.length > 1 && (
+          {(productImages?.length || 0) > 1 && (
             <>
               <TouchableOpacity
                 style={[styles.viewerNavButton, styles.viewerNavLeft]}
@@ -706,7 +708,7 @@ export default function ProductDetailScreen() {
           )}
           <View style={styles.viewerIndicator}>
             <Text style={styles.viewerIndicatorText}>
-              {productImages.length > 0 ? viewerIndex + 1 : 0} / {productImages.length}
+              {(productImages?.length || 0) > 0 ? viewerIndex + 1 : 0} / {productImages?.length || 0}
             </Text>
           </View>
         </View>
