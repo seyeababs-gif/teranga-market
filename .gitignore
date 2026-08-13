@@ -1,0 +1,5 @@
+.env
+.expo
+.rork
+.rork/history/
+node_modules

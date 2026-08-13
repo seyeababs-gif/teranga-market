@@ -1,0 +1,87 @@
+/* Desktop web layout fixes for Teranga Market */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  background-color: #e8e8e8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  max-width: none;
+}
+
+/* Center the app canvas on large screens and limit its width */
+@media (min-width: 1024px) {
+  #root > div {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.12);
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  /* Improve readability on wide screens */
+  input,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Larger touch targets on desktop while keeping mobile sizes */
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+/* Scrollbar styling for web — always visible on desktop */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 133, 63, 0.4);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 133, 63, 0.6);
+    background-clip: padding-box;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 133, 63, 0.4) rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Smooth scrolling everywhere on web */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Prevent layout shift from scrollbar */
+html {
+  overflow-y: auto;
+}
